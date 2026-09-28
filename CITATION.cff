@@ -1,0 +1,68 @@
+cff-version: 1.2.0
+message: "If you use this quarter-car simulation framework, MR damper model, or code in your research, please cite the following publications."
+title: "Quarter-Car Semi-Active Suspension Simulation with Spencer Modified Bouc-Wen MR Damper"
+authors:
+  - family-names: "Baig"
+    given-names: "W. M."
+date-released: 2025-01-01
+license: "MIT"
+repository-code: "https://github.com/waqasmbaig/Quarter-Car-MR-Damper-Simulation"
+keywords:
+  - "quarter-car model"
+  - "magnetorheological damper"
+  - "modified bouc-wen model"
+  - "semi-active suspension"
+  - "skyhook control"
+  - "vibration control"
+  - "simulink"
+  - "matlab"
+  - "python"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Yu"
+      given-names: "Z."
+    - family-names: "Luo"
+      given-names: "R."
+    - family-names: "Wu"
+      given-names: "P."
+    - family-names: "Baig"
+      given-names: "W. M."
+    - family-names: "Ma"
+      given-names: "H."
+    - family-names: "Hou"
+      given-names: "Z."
+  title: "Robust finite-frequency vibration control of in-wheel motor driving vehicles based on torque coordination and motor suspension"
+  journal: "IEEE Transactions on Transportation Electrification"
+  year: 2025
+  doi: "10.1109/TTE.2025.3535765"
+references:
+  - type: conference-paper
+    authors:
+      - family-names: "Baig"
+        given-names: "W. M."
+      - family-names: "Yu"
+        given-names: "Z."
+      - family-names: "Ma"
+        given-names: "H."
+      - family-names: "Hou"
+        given-names: "Z."
+    title: "Adaptive vibration control of in-wheel motor drive vehicles with preview information"
+    conference:
+      name: "IEEE 101st Vehicular Technology Conference (VTC2025-Spring)"
+    location: "Oslo, Norway"
+    year: 2025
+    doi: "10.1109/VTC2025-Spring65109.2025.11174543"
+  - type: conference-paper
+    authors:
+      - family-names: "Baig"
+        given-names: "W. M."
+      - family-names: "Hou"
+        given-names: "Z."
+      - family-names: "Ijaz"
+        given-names: "S."
+    title: "Fractional order controller design for a semi-active suspension system using Nelder-Mead optimization"
+    conference:
+      name: "29th Chinese Control and Decision Conference (CCDC)"
+    pages: "2808-2813"
+    year: 2017
