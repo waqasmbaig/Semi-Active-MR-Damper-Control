@@ -101,62 +101,82 @@ In the passive system shown in **Figure 1(a)**, the suspension forces transmitte
 
 Applying Newton's second law:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 m_s \ddot{z}_s + c_s (\dot{z}_s - \dot{z}_u) + k_s (z_s - z_u) &= 0 \\
 m_u \ddot{z}_u - c_s (\dot{z}_s - \dot{z}_u) - k_s (z_s - z_u) + k_t (z_u - z_r) &= 0
-\end{aligned}$$
+\end{aligned}
+$$
 
 Expressed explicitly in second-order state form for numerical integration:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 \ddot{z}_s &= \frac{-k_s (z_s - z_u) - c_s (\dot{z}_s - \dot{z}_u)}{m_s} \\
 \ddot{z}_u &= \frac{k_s (z_s - z_u) + c_s (\dot{z}_s - \dot{z}_u) - k_t (z_u - z_r)}{m_u}
-\end{aligned}$$
+\end{aligned}
+$$
 
 ### 2. (b) Semi-Active Quarter-Car System Dynamics
 In the semi-active system shown in **Figure 1(b)**, the passive damper is replaced by a controllable magnetorheological (MR) damper delivering a variable damping force $F_d$.
 
 Applying Newton's second law:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 m_s \ddot{z}_s + k_s (z_s - z_u) + F_d &= 0 \\
 m_u \ddot{z}_u - k_s (z_s - z_u) - F_d + k_t (z_u - z_r) &= 0
-\end{aligned}$$
+\end{aligned}
+$$
 
 Expressed explicitly in acceleration form:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 \ddot{z}_s &= \frac{-k_s (z_s - z_u) - F_d}{m_s} \\
 \ddot{z}_u &= \frac{k_s (z_s - z_u) + F_d - k_t (z_u - z_r)}{m_u}
-\end{aligned}$$
+\end{aligned}
+$$
 
 Defining relative suspension stroke $x = z_s - z_u$ (extension positive) and dynamic tire deflection $x_t = z_u - z_r$:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 \ddot{z}_s &= \frac{-k_s x - F_d}{m_s} \\
 \ddot{z}_u &= \frac{k_s x + F_d - k_t x_t}{m_u}
-\end{aligned}$$
+\end{aligned}
+$$
 
 ### 3. Controllable MR Damper Force Formulation ($F_d$)
 Under Spencer's Modified Bouc-Wen phenomenological model, the controllable damping force $F_d = F_{MR}$ is governed by internal accumulator compliance and intermediate displacement $y$:
 
-$$F_d = c_1 \dot{y} + k_1 (x - x_0)$$
+$$
+F_d = c_1 \dot{y} + k_1 (x - x_0)
+$$
 
 Equilibrium across internal float plate $y$ yields the intermediate node velocity:
 
-$$\dot{y} = \frac{1}{c_0 + c_1} \Big[ \alpha z + c_0 \dot{x} + k_0 (x - y) \Big]$$
+$$
+\dot{y} = \frac{1}{c_0 + c_1} \Big[ \alpha z + c_0 \dot{x} + k_0 (x - y) \Big]
+$$
 
 The hysteretic restoring variable $z$ evolves according to the Bouc-Wen differential equation:
 
-$$\dot{z} = A (\dot{x} - \dot{y}) - \beta (\dot{x} - \dot{y}) |z|^n - \gamma |\dot{x} - \dot{y}| |z|^{n-1} z$$
+$$
+\dot{z} = A (\dot{x} - \dot{y}) - \beta (\dot{x} - \dot{y}) |z|^n - \gamma |\dot{x} - \dot{y}| |z|^{n-1} z
+$$
 
 The coil electromagnetic lag filter governs effective voltage $u$:
 
-$$\dot{u} = -\eta (u - V_{cmd})$$
+$$
+\dot{u} = -\eta (u - V_{\text{cmd}})
+$$
 
 with field-dependent parameters linearly scaling with effective voltage $u$:
 
-$$\alpha(u) = \alpha_a + \alpha_b u, \qquad c_0(u) = c_{0a} + c_{0b} u, \qquad c_1(u) = c_{1a} + c_{1b} u$$
+$$
+\alpha(u) = \alpha_a + \alpha_b u, \qquad c_0(u) = c_{0a} + c_{0b} u, \qquad c_1(u) = c_{1a} + c_{1b} u
+$$
 
 ### 4. Semi-Active Skyhook Control Laws
 
@@ -164,15 +184,38 @@ $$\alpha(u) = \alpha_a + \alpha_b u, \qquad c_0(u) = c_{0a} + c_{0b} u, \qquad c
   <img src="docs/assets/skyhook_switching_surface.png" alt="Skyhook Switching Surface" width="55%" style="border-radius: 8px;" />
 </p>
 
-- **Classical Karnopp 2-State (On-Off) Skyhook**:
-  $$V_{cmd} = \begin{cases} V_{\max} = 2.0\text{ V}, & \text{if } \dot{z}_s (\dot{z}_s - \dot{z}_u) \ge 0 \\ V_{\min} = 0.0\text{ V}, & \text{if } \dot{z}_s (\dot{z}_s - \dot{z}_u) < 0 \end{cases}$$
+#### 4.1 Classical Karnopp 2-State (On-Off) Skyhook
 
-- **Continuous Linear Skyhook**:
-  $$V_{cmd} = \begin{cases} \text{clip}\left(V_{\min} + \frac{C_{sky} |\dot{z}_s|}{F_{ref}} (V_{\max} - V_{\min}), V_{\min}, V_{\max}\right), & \text{if } \dot{z}_s (\dot{z}_s - \dot{z}_u) \ge 0 \\ V_{\min}, & \text{otherwise} \end{cases}$$
+$$
+V_{\text{cmd}} = \begin{cases}
+V_{\max} = 2.0\text{ V}, & \text{if } \dot{z}_s (\dot{z}_s - \dot{z}_u) \ge 0 \\
+V_{\min} = 0.0\text{ V}, & \text{if } \dot{z}_s (\dot{z}_s - \dot{z}_u) < 0
+\end{cases}
+$$
 
-- **Hybrid Skyhook-Groundhook**:
-  $$\sigma_{hybrid} = \alpha_{hyb} \dot{z}_s - (1 - \alpha_{hyb}) \dot{z}_u$$
-  $$V_{cmd} = \begin{cases} V_{\max}, & \text{if } \sigma_{hybrid} (\dot{z}_s - \dot{z}_u) \ge 0 \\ V_{\min}, & \text{otherwise} \end{cases}$$
+#### 4.2 Continuous Linear Skyhook
+
+$$
+V_{\text{cmd}} = \begin{cases}
+\mathrm{clip}\left(V_{\min} + \dfrac{C_{\text{sky}} |\dot{z}_s|}{F_{\text{ref}}} (V_{\max} - V_{\min}), \, V_{\min}, \, V_{\max}\right), & \text{if } \dot{z}_s (\dot{z}_s - \dot{z}_u) \ge 0 \\
+V_{\min}, & \text{otherwise}
+\end{cases}
+$$
+
+#### 4.3 Hybrid Skyhook-Groundhook
+
+The hybrid switching variable blends sprung body velocity $\dot{z}_s$ and unsprung wheel velocity $\dot{z}_u$ through weighting ratio $\alpha_{\text{hyb}} \in [0, 1]$:
+
+$$
+\sigma_{\text{hybrid}} = \alpha_{\text{hyb}} \dot{z}_s - (1 - \alpha_{\text{hyb}}) \dot{z}_u
+$$
+
+$$
+V_{\text{cmd}} = \begin{cases}
+V_{\max}, & \text{if } \sigma_{\text{hybrid}} (\dot{z}_s - \dot{z}_u) \ge 0 \\
+V_{\min}, & \text{otherwise}
+\end{cases}
+$$
 
 ---
 
