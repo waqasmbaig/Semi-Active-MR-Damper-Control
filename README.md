@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/banner.png" alt="Semi-Active MR Damper Control Banner" width="100%" style="border-radius: 10px;" />
+  <img src="docs/assets/banner_v2.png" alt="Semi-Active MR Damper Control Banner" width="100%" style="border-radius: 10px;" />
 </p>
 
 <p align="center">
