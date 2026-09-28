@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="docs/assets/banner.png" alt="Semi-Active MR Damper Control Banner" width="100%" style="border-radius: 10px;" />
+</p>
+
+<p align="center">
   <h1 align="center">🏎️ Semi-Active-MR-Damper-Control</h1>
   <p align="center"><b>Coupled 2-DOF Quarter-Car Vehicle Handling Dynamics & Spencer Modified Bouc-Wen MR Damper</b></p>
   <p align="center"><i>High-Fidelity Dual-Platform Simulation & Semi-Active Control Framework in MATLAB / Simulink & Pure Python 3</i></p>
