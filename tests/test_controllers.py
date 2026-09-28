@@ -9,6 +9,7 @@ import pytest
 import numpy as np
 from quarter_car.controllers import (
     PassiveController,
+    BasicPassiveDamperController,
     SkyhookController,
     GroundhookController,
     HybridSkyhookGroundhookController
@@ -22,6 +23,14 @@ def test_passive_controller():
 
     assert c_soft.compute_voltage(0.0, state) == 0.0
     assert c_hard.compute_voltage(0.0, state) == 2.0
+
+
+def test_basic_passive_controller():
+    c_basic = BasicPassiveDamperController(c_s=1500.0)
+    state = np.zeros(7)
+    assert c_basic.c_s == 1500.0
+    assert c_basic.is_linear_passive is True
+    assert c_basic.compute_voltage(0.0, state) == 0.0
 
 
 def test_skyhook_switching_logic():

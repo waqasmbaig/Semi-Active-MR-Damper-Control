@@ -25,6 +25,7 @@ from quarter_car import (
     QuarterCarModel,
     HaversineBumpRoad,
     ISO8608RandomRoad,
+    BasicPassiveDamperController,
     PassiveController,
     SkyhookController,
     HybridSkyhookGroundhookController,
@@ -39,29 +40,32 @@ def generate_in_situ_hysteresis(save_path: str):
     road = HaversineBumpRoad(height=0.05, length=1.0, velocity_kmh=45.0, t_start=0.5)
     sim = QuarterCarSimulator(QuarterCarModel(), road)
 
+    res_basic = sim.simulate(BasicPassiveDamperController(1500.0), t_span=(0.0, 2.0), dt=2e-4)
     res_soft = sim.simulate(PassiveController(0.0), t_span=(0.0, 2.0), dt=2e-4)
     res_hard = sim.simulate(PassiveController(2.0), t_span=(0.0, 2.0), dt=2e-4)
     res_sky = sim.simulate(SkyhookController("two_state"), t_span=(0.0, 2.0), dt=2e-4)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5.5), dpi=300)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.5, 5.5), dpi=300)
 
     # 1. Force vs Suspension Deflection
-    ax1.plot(res_soft.susp_deflection * 1000.0, res_soft.f_mr, label="Passive Soft (0 V)", color="#1f77b4", lw=1.6, alpha=0.85)
-    ax1.plot(res_hard.susp_deflection * 1000.0, res_hard.f_mr, label="Passive Hard (2 V)", color="#d62728", lw=1.6, alpha=0.85)
-    ax1.plot(res_sky.susp_deflection * 1000.0, res_sky.f_mr, label="Skyhook Semi-Active", color="#2ca02c", lw=1.8)
+    ax1.plot(res_basic.susp_deflection * 1000.0, res_basic.f_mr, label="Basic Passive ($c_s=1.5$ kN·s/m)", color="#7f7f7f", lw=1.6, ls='--')
+    ax1.plot(res_soft.susp_deflection * 1000.0, res_soft.f_mr, label="MR Passive Soft (0 V)", color="#1f77b4", lw=1.6, alpha=0.85)
+    ax1.plot(res_hard.susp_deflection * 1000.0, res_hard.f_mr, label="MR Passive Hard (2 V)", color="#d62728", lw=1.6, alpha=0.85)
+    ax1.plot(res_sky.susp_deflection * 1000.0, res_sky.f_mr, label="MR Skyhook Semi-Active", color="#2ca02c", lw=1.8)
     ax1.set_xlabel("Suspension Deflection ($z_s - z_u$) [mm]", fontweight="bold")
-    ax1.set_ylabel("MR Damper Force [N]", fontweight="bold")
+    ax1.set_ylabel("Damper Force [N]", fontweight="bold")
     ax1.set_title("In-Situ Force vs. Displacement (Bump Excursion)", fontweight="bold")
     ax1.grid(True, alpha=0.4)
     ax1.legend(loc="lower right", frameon=True)
 
     # 2. Force vs Suspension Velocity
-    ax2.plot(res_soft.susp_velocity, res_soft.f_mr, label="Passive Soft (0 V)", color="#1f77b4", lw=1.6, alpha=0.85)
-    ax2.plot(res_hard.susp_velocity, res_hard.f_mr, label="Passive Hard (2 V)", color="#d62728", lw=1.6, alpha=0.85)
-    ax2.plot(res_sky.susp_velocity, res_sky.f_mr, label="Skyhook Semi-Active", color="#2ca02c", lw=1.8)
-    ax2.set_xlabel("Piston Relative Velocity ($\dot{z}_s - \dot{z}_u$) [m/s]", fontweight="bold")
-    ax2.set_ylabel("MR Damper Force [N]", fontweight="bold")
-    ax2.set_title("In-Situ Force vs. Velocity Hysteresis", fontweight="bold")
+    ax2.plot(res_basic.susp_velocity, res_basic.f_mr, label="Basic Passive ($c_s=1.5$ kN·s/m)", color="#7f7f7f", lw=1.8, ls='--')
+    ax2.plot(res_soft.susp_velocity, res_soft.f_mr, label="MR Passive Soft (0 V)", color="#1f77b4", lw=1.6, alpha=0.85)
+    ax2.plot(res_hard.susp_velocity, res_hard.f_mr, label="MR Passive Hard (2 V)", color="#d62728", lw=1.6, alpha=0.85)
+    ax2.plot(res_sky.susp_velocity, res_sky.f_mr, label="MR Skyhook Semi-Active", color="#2ca02c", lw=1.8)
+    ax2.set_xlabel(r"Piston Relative Velocity ($\dot{z}_s - \dot{z}_u$) [m/s]", fontweight="bold")
+    ax2.set_ylabel("Damper Force [N]", fontweight="bold")
+    ax2.set_title("In-Situ Force vs. Velocity (Hysteresis Comparison)", fontweight="bold")
     ax2.grid(True, alpha=0.4)
     ax2.legend(loc="upper left", frameon=True)
 
@@ -90,8 +94,8 @@ def generate_skyhook_phase_plane(save_path: str):
     ax.text(0.25, -0.35, "V = 0.0 V (OFF)\nSoft Damping", fontsize=11, fontweight='bold', color='#0c5460', ha='center')
     ax.text(-0.25, 0.35, "V = 0.0 V (OFF)\nSoft Damping", fontsize=11, fontweight='bold', color='#0c5460', ha='center')
 
-    ax.set_xlabel("Chassis Vertical Velocity $\dot{z}_s$ [m/s]", fontweight="bold", fontsize=11)
-    ax.set_ylabel("Suspension Velocity $\dot{x} = \dot{z}_s - \dot{z}_u$ [m/s]", fontweight="bold", fontsize=11)
+    ax.set_xlabel(r"Chassis Vertical Velocity $\dot{z}_s$ [m/s]", fontweight="bold", fontsize=11)
+    ax.set_ylabel(r"Suspension Velocity $\dot{x} = \dot{z}_s - \dot{z}_u$ [m/s]", fontweight="bold", fontsize=11)
     ax.set_title("Karnopp Skyhook Semi-Active Switching Surface", fontweight="bold", fontsize=12)
     ax.grid(True, alpha=0.3, ls='--')
 
@@ -115,7 +119,7 @@ def generate_schematic_diagram(save_path: str):
 
     # Arrow for z_s
     ax.annotate("", xy=(1.9, 4.8), xytext=(1.9, 3.9), arrowprops=dict(arrowstyle="->", lw=2, color="#0d47a1"))
-    ax.text(2.05, 4.35, "$z_s(t)$\n$\dot{z}_s(t)$", fontsize=11, color="#0d47a1", va='center')
+    ax.text(2.05, 4.35, r"$z_s(t)$" + "\n" + r"$\dot{z}_s(t)$", fontsize=11, color="#0d47a1", va='center')
 
     # 2. Suspension components (Spring k_s and MR Damper F_MR)
     # Left: Coil Spring k_s
@@ -135,7 +139,7 @@ def generate_schematic_diagram(save_path: str):
     ax.plot([damper_x, damper_x], [3.8, 2.7], color="#1b5e20", lw=3.0)
     ax.plot([damper_x - 0.2, damper_x + 0.2], [2.7, 2.7], color="#1b5e20", lw=3.5)
     # Damper label
-    ax.text(damper_x + 0.65, 3.0, "MR Damper\nSpencer MBW\n$F_{MR}(x, \dot{x}, V)$", ha='center', fontsize=10, color="#1b5e20", fontweight='bold')
+    ax.text(damper_x + 0.65, 3.0, r"MR Damper" + "\n" + r"Spencer MBW" + "\n" + r"$F_{MR}(x, \dot{x}, V)$", ha='center', fontsize=10, color="#1b5e20", fontweight='bold')
 
     # Relative suspension deflection annotation
     ax.annotate("", xy=(-0.05, 3.75), xytext=(-0.05, 2.25), arrowprops=dict(arrowstyle="<->", lw=1.8, color="#424242"))

@@ -19,11 +19,12 @@ road_eval = @(t) evaluate_road(t, RoadType, Bump_Height, Bump_Length, Car_Speed_
 
 %% 3. Benchmark Controllers
 controllers = {
-    struct('name', 'Passive Soft (0.0 V)', 'mode', 0, 'color', [0.12, 0.47, 0.71]), ...
-    struct('name', 'Passive Hard (2.0 V)', 'mode', 1, 'color', [0.84, 0.15, 0.16]), ...
-    struct('name', 'Skyhook (2-State)',    'mode', 2, 'color', [0.17, 0.63, 0.17]), ...
-    struct('name', 'Continuous Skyhook',   'mode', 3, 'color', [1.00, 0.50, 0.05]), ...
-    struct('name', 'Hybrid Sky-Ground',    'mode', 4, 'color', [0.58, 0.40, 0.74])
+    struct('name', 'Basic Passive (Linear)', 'mode', -1, 'color', [0.45, 0.45, 0.45]), ...
+    struct('name', 'Passive Soft (0.0 V)',   'mode', 0,  'color', [0.12, 0.47, 0.71]), ...
+    struct('name', 'Passive Hard (2.0 V)',   'mode', 1,  'color', [0.84, 0.15, 0.16]), ...
+    struct('name', 'Skyhook (2-State)',      'mode', 2,  'color', [0.17, 0.63, 0.17]), ...
+    struct('name', 'Continuous Skyhook',     'mode', 3,  'color', [1.00, 0.50, 0.05]), ...
+    struct('name', 'Hybrid Sky-Ground',      'mode', 4,  'color', [0.58, 0.40, 0.74])
 };
 
 results = cell(length(controllers), 1);
@@ -34,11 +35,11 @@ fprintf('\nRunning Quarter-Car Stiff ODE Simulation (ode15s)...\n');
 
 for c_idx = 1:length(controllers)
     ctrl = controllers{c_idx};
-    fprintf('  Simulating %s...', ctrl.name);
+    fprintf('  Simulating %-25s...', ctrl.name);
     
     % ODE RHS function
     ode_fun = @(t, x) quarter_car_ode(t, x, ctrl.mode, road_eval, ...
-        m_s, m_u, k_s, c_s_pass, k_t, c_t, ...
+        m_s, m_u, k_s, c_s_pass, c_s_linear, k_t, c_t, ...
         c0_a, c0_b, k0, c1_a, c1_b, k1, x0, alpha_a, alpha_b, gamma, beta, A, n, eta, ...
         V_min, V_max, C_sky, F_ref_sky, alpha_hybrid);
     
@@ -68,11 +69,15 @@ for c_idx = 1:length(controllers)
         zr_arr(i) = zr;
         tire_deflection(i) = z_u(i) - zr;
         
-        c0 = c0_a + c0_b * u_d(i);
-        c1 = c1_a + c1_b * u_d(i);
-        alpha = alpha_a + alpha_b * u_d(i);
-        y_dot = (alpha * z_d(i) + c0 * susp_velocity(i) + k0 * (susp_deflection(i) - y_d(i))) / (c0 + c1);
-        f_mr(i) = c1 * y_dot + k1 * (susp_deflection(i) - x0);
+        if ctrl.mode == -1
+            f_mr(i) = c_s_linear * susp_velocity(i);
+        else
+            c0 = c0_a + c0_b * u_d(i);
+            c1 = c1_a + c1_b * u_d(i);
+            alpha = alpha_a + alpha_b * u_d(i);
+            y_dot = (alpha * z_d(i) + c0 * susp_velocity(i) + k0 * (susp_deflection(i) - y_d(i))) / (c0 + c1);
+            f_mr(i) = c1 * y_dot + k1 * (susp_deflection(i) - x0);
+        end
         
         f_spring = k_s * susp_deflection(i) + c_s_pass * susp_velocity(i);
         z_s_ddot(i) = (-f_spring - f_mr(i)) / m_s;
@@ -157,7 +162,7 @@ end
 
 %% Helper: Quarter-Car ODE RHS Function
 function dxdt = quarter_car_ode(t, x, mode, road_eval, ...
-    m_s, m_u, k_s, c_s_pass, k_t, c_t, ...
+    m_s, m_u, k_s, c_s_pass, c_s_linear, k_t, c_t, ...
     c0_a, c0_b, k0, c1_a, c1_b, k1, x0, alpha_a, alpha_b, gamma, beta, A, n, eta, ...
     V_min, V_max, C_sky, F_ref_sky, alpha_hybrid)
 
@@ -173,6 +178,17 @@ function dxdt = quarter_car_ode(t, x, mode, road_eval, ...
 
     susp_defl = z_s - z_u;
     susp_vel  = z_s_dot - z_u_dot;
+
+    if mode == -1
+        % Standard linear passive shock absorber: F_d = c_s_linear * x_dot
+        f_mr = c_s_linear * susp_vel;
+        f_spring = k_s * susp_defl + c_s_pass * susp_vel;
+        f_tire   = k_t * (z_u - zr) + c_t * (z_u_dot - zr_dot);
+        dz_s_ddot = (-f_spring - f_mr) / m_s;
+        dz_u_ddot = (f_spring + f_mr - f_tire) / m_u;
+        dxdt = [z_s_dot; dz_s_ddot; z_u_dot; dz_u_ddot; 0; 0; 0];
+        return;
+    end
 
     % Controller logic
     switch mode

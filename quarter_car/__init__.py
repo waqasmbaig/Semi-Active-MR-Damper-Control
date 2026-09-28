@@ -25,6 +25,7 @@ from quarter_car.vehicle import QuarterCarModel
 from quarter_car.controllers import (
     BaseSuspensionController,
     PassiveController,
+    BasicPassiveDamperController,
     SkyhookController,
     GroundhookController,
     HybridSkyhookGroundhookController,
@@ -46,6 +47,7 @@ __all__ = [
     "QuarterCarModel",
     "BaseSuspensionController",
     "PassiveController",
+    "BasicPassiveDamperController",
     "SkyhookController",
     "GroundhookController",
     "HybridSkyhookGroundhookController",

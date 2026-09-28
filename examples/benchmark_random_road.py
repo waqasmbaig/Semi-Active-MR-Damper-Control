@@ -22,6 +22,7 @@ sys.path.insert(0, str(repo_root))
 from quarter_car import (
     QuarterCarModel,
     ISO8608RandomRoad,
+    BasicPassiveDamperController,
     PassiveController,
     SkyhookController,
     HybridSkyhookGroundhookController,
@@ -36,8 +37,9 @@ def run_random_road_benchmark(save_path: str = None):
     simulator = QuarterCarSimulator(vehicle_model=model, road_profile=road)
 
     controllers = [
-        PassiveController(voltage=0.0, name="Passive Soft (0.0 V)", color="#1f77b4"),
-        PassiveController(voltage=2.0, name="Passive Hard (2.0 V)", color="#d62728"),
+        BasicPassiveDamperController(c_s=1500.0, name="Basic Passive (Linear)", color="#7f7f7f"),
+        PassiveController(voltage=0.0, name="MR Passive Soft (0.0 V)", color="#1f77b4"),
+        PassiveController(voltage=2.0, name="MR Passive Hard (2.0 V)", color="#d62728"),
         SkyhookController(mode="two_state", name="Skyhook (2-State)", color="#2ca02c"),
         HybridSkyhookGroundhookController(alpha=0.60, name="Hybrid Sky-Groundhook", color="#9467bd")
     ]

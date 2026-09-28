@@ -56,3 +56,18 @@ def test_skyhook_superiority_over_passive_hard():
 
     # Skyhook should achieve lower peak body displacement than stiff passive hard
     assert res_sky.metrics["peak_disp_mm"] < res_hard.metrics["peak_disp_mm"]
+
+
+def test_basic_linear_passive_simulation():
+    """Verify simulation with basic linear passive shock absorber."""
+    from quarter_car.controllers import BasicPassiveDamperController
+    road = HaversineBumpRoad(height=0.05, length=1.0, velocity_kmh=45.0)
+    sim = QuarterCarSimulator(QuarterCarModel(), road)
+
+    c_basic = BasicPassiveDamperController(c_s=1500.0)
+    res = sim.simulate(c_basic, t_span=(0.0, 2.0), dt=2e-4, solver="rk4")
+
+    assert not np.any(np.isnan(res.z_s))
+    assert not np.any(np.isnan(res.f_mr))
+    assert 10.0 < res.metrics["peak_disp_mm"] < 25.0
+    assert res.metrics["rms_accel_mps2"] > 0.0

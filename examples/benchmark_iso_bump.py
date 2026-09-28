@@ -25,6 +25,7 @@ from quarter_car import (
     QuarterCarParameters,
     MRDamperParameters,
     HaversineBumpRoad,
+    BasicPassiveDamperController,
     PassiveController,
     SkyhookController,
     HybridSkyhookGroundhookController,
@@ -39,8 +40,9 @@ def run_bump_benchmark(save_path: str = None):
     simulator = QuarterCarSimulator(vehicle_model=model, road_profile=road)
 
     controllers = [
-        PassiveController(voltage=0.0, name="Passive Soft (0.0 V)", color="#1f77b4"),
-        PassiveController(voltage=2.0, name="Passive Hard (2.0 V)", color="#d62728"),
+        BasicPassiveDamperController(c_s=1500.0, name="Basic Passive (Linear)", color="#7f7f7f"),
+        PassiveController(voltage=0.0, name="MR Passive Soft (0.0 V)", color="#1f77b4"),
+        PassiveController(voltage=2.0, name="MR Passive Hard (2.0 V)", color="#d62728"),
         SkyhookController(mode="two_state", name="Skyhook (2-State)", color="#2ca02c"),
         SkyhookController(mode="continuous", c_sky=2200.0, name="Continuous Skyhook", color="#ff7f0e"),
         HybridSkyhookGroundhookController(alpha=0.65, name="Hybrid Sky-Groundhook", color="#9467bd")

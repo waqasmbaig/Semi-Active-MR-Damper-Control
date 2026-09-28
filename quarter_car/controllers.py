@@ -76,6 +76,28 @@ class PassiveController(BaseSuspensionController):
         return self.voltage
 
 
+class BasicPassiveDamperController(BaseSuspensionController):
+    """
+    Classical Basic Linear Passive Shock Absorber.
+    Generates standard viscous damping force F_d = c_s * (z_s_dot - z_u_dot)
+    without MR fluid hysteresis, magnetic field coil dynamics, or gas pre-charge.
+    Default c_s = 1500 N*s/m corresponds to typical passenger car damping ratio (zeta ~ 0.28).
+    """
+
+    def __init__(
+        self,
+        c_s: float = 1500.0,
+        name: str = "Basic Passive (Linear)",
+        color: str = "#7f7f7f"
+    ):
+        super().__init__(name=name, color=color)
+        self.c_s = float(c_s)
+        self.is_linear_passive = True
+
+    def compute_voltage(self, t: float, state: np.ndarray, aux: Optional[Dict[str, Any]] = None) -> float:
+        return 0.0
+
+
 class SkyhookController(BaseSuspensionController):
     """
     Karnopp Skyhook Semi-Active Controller.

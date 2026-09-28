@@ -27,8 +27,13 @@ m_s      = 320.0;              % Sprung mass (chassis body quarter) [kg]
 m_u      = 40.0;               % Unsprung mass (wheel/hub assembly) [kg]
 k_s      = 22000.0;            % Suspension coil spring stiffness [N/m]
 c_s_pass = 0.0;                % Auxiliary parallel passive damping [N*s/m]
+c_s_linear = 1500.0;           % Standard basic linear passive shock absorber damping [N*s/m]
 k_t      = 190000.0;           % Tire radial vertical stiffness [N/m]
 c_t      = 0.0;                % Tire vertical damping [N*s/m]
+
+% Damping ratios and critical values
+c_crit   = 2 * sqrt(m_s * k_s); % Critical damping coefficient (~5306.6 N*s/m)
+zeta_lin = c_s_linear / c_crit; % Damping ratio of basic passive damper (~0.283)
 
 % Static equilibrium offsets
 delta_s0 = (m_s * g) / k_s;    % Static suspension deflection [m]
@@ -92,11 +97,12 @@ Step_Rise   = 0.02;            % Rise time [s]
 
 %% 5. Controller Configuration
 % ControlMode:
-%   0 -> Passive Soft (0.0 V)
-%   1 -> Passive Hard (2.0 V)
-%   2 -> Karnopp Skyhook (2-State On-Off)
-%   3 -> Continuous Linear Skyhook
-%   4 -> Hybrid Skyhook-Groundhook
+%  -1 -> Basic Linear Passive Damper (c_s_linear = 1500 N*s/m, zeta = 0.28)
+%   0 -> MR Damper - Passive Soft (0.0 V)
+%   1 -> MR Damper - Passive Hard (2.0 V)
+%   2 -> MR Damper - Karnopp Skyhook (2-State On-Off)
+%   3 -> MR Damper - Continuous Linear Skyhook
+%   4 -> MR Damper - Hybrid Skyhook-Groundhook
 ControlMode = 2;
 
 % Controller tuning gains
@@ -105,6 +111,7 @@ F_ref_sky    = 2000.0;         % Reference force for continuous voltage scaling 
 alpha_hybrid = 0.65;           % Skyhook vs Groundhook weighting factor (0 = pure GH, 1 = pure SH)
 
 fprintf('Quarter-Car & MR Damper parameters initialized successfully in workspace.\n');
-fprintf('  Sprung Mass:   %.1f kg (Bounce fn = %.2f Hz)\n', m_s, fn_sprung);
-fprintf('  Unsprung Mass: %.1f kg (Wheel hop fn = %.2f Hz)\n', m_u, fn_unsprung);
-fprintf('  Active Controller: Mode %d (0:Soft, 1:Hard, 2:Skyhook-2State, 3:Cont-Skyhook, 4:Hybrid)\n', ControlMode);
+fprintf('  Sprung Mass:       %.1f kg (Bounce fn = %.2f Hz)\n', m_s, fn_sprung);
+fprintf('  Unsprung Mass:     %.1f kg (Wheel hop fn = %.2f Hz)\n', m_u, fn_unsprung);
+fprintf('  Basic Passive c_s: %.1f N*s/m (Damping ratio zeta = %.3f)\n', c_s_linear, zeta_lin);
+fprintf('  Active Controller: Mode %d (-1:Basic Passive, 0:Soft, 1:Hard, 2:Skyhook-2State, 3:Cont-Skyhook, 4:Hybrid)\n', ControlMode);

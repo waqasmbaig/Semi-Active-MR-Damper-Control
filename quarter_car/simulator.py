@@ -148,11 +148,15 @@ class QuarterCarSimulator:
         init_state: np.ndarray
     ) -> SimulationResult:
         method_name = "Radau" if method == "radau" else "BDF"
+        is_linear = getattr(controller, "is_linear_passive", False)
+        c_s_val = getattr(controller, "c_s", None)
 
         def ode_func(t, state):
             zr, zr_dot = self.road.evaluate(t)
             v_cmd = controller.compute_voltage(t, state)
-            derivs, _ = self.model.equations_of_motion(t, state, zr, zr_dot, v_cmd)
+            derivs, _ = self.model.equations_of_motion(
+                t, state, zr, zr_dot, v_cmd, use_linear_damper=is_linear, c_s_linear=c_s_val
+            )
             return derivs
 
         sol = solve_ivp(
@@ -179,6 +183,8 @@ class QuarterCarSimulator:
         states[:, 0] = init_state
 
         curr_state = init_state.copy()
+        is_linear = getattr(controller, "is_linear_passive", False)
+        c_s_val = getattr(controller, "c_s", None)
 
         # To ensure numerical stability for stiff Bouc-Wen dynamics (eigenvalues ~ 10,000 s^-1),
         # limit internal RK4 sub-step size to <= 5e-5 s (ISO SIL stability guideline)
@@ -189,7 +195,9 @@ class QuarterCarSimulator:
         def f_sys(t, st):
             zr, zr_dot = self.road.evaluate(t)
             v_cmd = controller.compute_voltage(t, st)
-            derivs, _ = self.model.equations_of_motion(t, st, zr, zr_dot, v_cmd)
+            derivs, _ = self.model.equations_of_motion(
+                t, st, zr, zr_dot, v_cmd, use_linear_damper=is_linear, c_s_linear=c_s_val
+            )
             return derivs
 
         for i in range(n_points - 1):
@@ -225,12 +233,17 @@ class QuarterCarSimulator:
         f_tire = np.zeros(n_points)
         power = np.zeros(n_points)
 
+        is_linear = getattr(controller, "is_linear_passive", False)
+        c_s_val = getattr(controller, "c_s", None)
+
         for i in range(n_points):
             t_i = time[i]
             st_i = states[:, i]
             zr, zr_dot = self.road.evaluate(t_i)
             v = controller.compute_voltage(t_i, st_i)
-            _, aux = self.model.equations_of_motion(t_i, st_i, zr, zr_dot, v)
+            _, aux = self.model.equations_of_motion(
+                t_i, st_i, zr, zr_dot, v, use_linear_damper=is_linear, c_s_linear=c_s_val
+            )
 
             road_elevation[i] = zr
             road_velocity[i] = zr_dot

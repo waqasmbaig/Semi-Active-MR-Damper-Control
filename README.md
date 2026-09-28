@@ -119,7 +119,16 @@ with voltage-dependent parameters:
 
 $$\alpha(u) = \alpha_a + \alpha_b u, \qquad c_0(u) = c_{0a} + c_{0b} u, \qquad c_1(u) = c_{1a} + c_{1b} u$$
 
-### 3. Semi-Active Skyhook Control Laws
+### 3. Basic Linear Passive Shock Absorber ($F_{pass}$)
+For conventional passenger vehicle suspensions without magnetorheological fluid, the damping force follows a standard linear viscous law:
+
+$$F_{pass} = c_s (\dot{z}_s - \dot{z}_u) = c_s \dot{x}$$
+
+with nominal linear damping coefficient $c_s = 1500.0\text{ N}\cdot\text{s/m}$, corresponding to a typical passenger car damping ratio of:
+
+$$\zeta = \frac{c_s}{2\sqrt{m_s k_s}} = \frac{1500.0}{2\sqrt{320 \times 22000}} \approx 0.283$$
+
+### 4. Semi-Active Skyhook Control Laws
 
 <p align="center">
   <img src="docs/assets/skyhook_switching_surface.png" alt="Skyhook Switching Surface" width="55%" style="border-radius: 8px;" />
@@ -145,6 +154,7 @@ $$\alpha(u) = \alpha_a + \alpha_b u, \qquad c_0(u) = c_{0a} + c_{0b} u, \qquad c
 | **Unsprung Mass** | $m_u$ | `40.0` | $\text{kg}$ | Wheel, tire, and hub mass |
 | **Suspension Spring** | $k_s$ | `22000.0` | $\text{N/m}$ | Primary coil spring stiffness |
 | **Tire Vertical Stiffness** | $k_t$ | `190000.0` | $\text{N/m}$ | Radial tire vertical stiffness |
+| **Basic Passive Damping** | $c_s$ | `1500.0` | $\text{N}\cdot\text{s/m}$ | Linear passive shock absorber ($\zeta \approx 0.28$) |
 | **Zero-field damping** | $c_{0a}$ | `784.0` | $\text{N}\cdot\text{s/m}$ | Zero-voltage dashpot damping |
 | **Field damping gain** | $c_{0b}$ | `1803.0` | $\text{N}\cdot\text{s/(m}\cdot\text{V)}$ | Damping sensitivity per volt |
 | **Dashpot stiffness** | $k_0$ | `3610.0` | $\text{N/m}$ | Post-yield mechanical stiffness |
@@ -170,9 +180,9 @@ The model [`matlab/Quarter_Car_MRD.slx`](matlab/Quarter_Car_MRD.slx) is architec
 Quarter_Car_MRD.slx (Top Level)
 ├── Road_Excitation           [Selectable: Haversine Bump, Chirp, ISO Class C, Step]
 │   └── Outputs: z_r, z_r_dot
-├── Semi_Active_Controller    [Arbitrates Passive 0V/2V, Skyhook, Continuous, Hybrid]
+├── Semi_Active_Controller    [Arbitrates Basic Passive, MR 0V/2V, Skyhook, Continuous, Hybrid]
 │   └── Outputs: V_cmd
-├── MR_Damper_Bouc_Wen        [Spencer MBW model: coil delay, alpha, c0, c1, dy/dt, dz/dt]
+├── MR_Damper_Bouc_Wen        [Spencer MBW model & Linear Damper: du/dt, alpha, c0, c1, dy/dt, dz/dt]
 │   └── Outputs: F_MR, u_eff
 ├── Quarter_Car_Dynamics      [2-DOF vehicle plant: ms, mu, ks, kt double integrators]
 │   └── Outputs: z_s, z_s_dot, z_s_ddot, z_u, z_u_dot, x, x_dot, x_t
@@ -180,8 +190,8 @@ Quarter_Car_MRD.slx (Top Level)
 ```
 
 ### Key MATLAB Scripts:
-- **[`matlab/init_quarter_car_params.m`](matlab/init_quarter_car_params.m)**: Loads all vehicle, MR damper, road, controller, and solver settings into the base workspace.
-- **[`matlab/run_quarter_car_simulation.m`](matlab/run_quarter_car_simulation.m)**: Automatically executes multi-controller sweeps in Simulink and plots comparative figures.
+- **[`matlab/init_quarter_car_params.m`](matlab/init_quarter_car_params.m)**: Loads all vehicle, MR damper, basic passive damper ($c_s = 1500\text{ N}\cdot\text{s/m}$), road, controller, and solver settings into the base workspace.
+- **[`matlab/run_quarter_car_simulation.m`](matlab/run_quarter_car_simulation.m)**: Automatically executes multi-controller sweeps across Basic Passive, MR Soft/Hard, and Skyhook in Simulink.
 - **[`matlab/simulate_quarter_car.m`](matlab/simulate_quarter_car.m)**: Standalone pure MATLAB stiff ODE solver (`ode15s`) that runs with **zero Simulink license requirement**.
 - **[`matlab/build_quarter_car_model.m`](matlab/build_quarter_car_model.m)**: Programmatic model builder script that rebuilds `Quarter_Car_MRD.slx` via MATLAB's Simulink API.
 
@@ -197,7 +207,7 @@ quarter_car/
 ├── parameters.py         # MRDamperParameters and QuarterCarParameters dataclasses
 ├── mr_damper.py          # SpencerModifiedBoucWenMRDamper class
 ├── vehicle.py            # QuarterCarModel (coupled 7-state equations of motion)
-├── controllers.py        # Passive, Skyhook, Groundhook, Hybrid controllers
+├── controllers.py        # BasicPassiveDamperController, Passive, Skyhook, Groundhook, Hybrid
 ├── road_profiles.py      # HaversineBumpRoad, ISO8608RandomRoad, ChirpHarmonicRoad, StepRoad
 ├── simulator.py          # QuarterCarSimulator (SciPy Radau/BDF and fixed-step RK4)
 └── metrics.py            # ISO 2631 ride comfort & ISO 8855 road holding metrics
@@ -213,14 +223,15 @@ quarter_car/
   <img src="docs/assets/bump_response_comparison.png" alt="Bump Response Comparison" width="95%" style="border-radius: 8px;" />
 </p>
 
-#### Quantitative Performance Comparison:
+#### Comprehensive Performance Comparison:
 
-| Suspension Control Law | RMS Accel. [$\text{m/s}^2$] | Peak Body Disp. [$\text{mm}$] | Settling Time [$5\%$] | Peak Susp. Travel [$\text{mm}$] | Ride Comfort Improvement |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Passive Soft ($0.0\text{ V}$)** | $1.41$ | $17.0$ | $1.53\text{ s}$ | $58.3$ | Baseline (Underdamped body bounce) |
-| **Passive Hard ($2.0\text{ V}$)** | $2.51$ | $23.9$ | $2.05\text{ s}$ | $29.4$ | $+40.6\%$ displacement penalty |
-| **Continuous Skyhook** | **$1.53$** | **$10.5$** | **$1.45\text{ s}$** | $58.3$ | $38.2\%$ displacement reduction |
-| **Skyhook (2-State)** | **$2.17$** | **$8.5$** | **$1.36\text{ s}$** | $58.4$ | **$49.7\%$ Displacement Reduction** |
+| Suspension Configuration | RMS Accel. [$\text{m/s}^2$] | Peak Body Disp. [$\text{mm}$] | Settling Time [$5\%$] | Peak Susp. Travel [$\text{mm}$] | Comparative Performance vs. Basic Passive |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **Basic Passive Damper ($c_s = 1.5\text{ kN}\cdot\text{s/m}$)** | $1.66$ | $14.0$ | $2.01\text{ s}$ | $50.8$ | **Traditional Shock Absorber Baseline** |
+| **MR Damper - Passive Soft ($0.0\text{ V}$)** | $1.41$ | $17.0$ | $1.53\text{ s}$ | $58.3$ | Underdamped chassis bounce ($+21.4\%$ peak disp) |
+| **MR Damper - Passive Hard ($2.0\text{ V}$)** | $2.51$ | $23.9$ | $2.05\text{ s}$ | $29.4$ | Overdamped harshness ($+70.7\%$ peak disp) |
+| **MR Damper - Continuous Skyhook** | **$1.53$** | **$10.5$** | **$1.45\text{ s}$** | $58.3$ | **$25.0\%$ displacement reduction**, $7.8\%$ lower accel |
+| **MR Damper - Skyhook (2-State)** | **$2.17$** | **$8.5$** | **$1.36\text{ s}$** | $58.4$ | **$39.3\%$ Displacement Reduction**, **$32.3\%$ faster settling** |
 
 ### 2. In-Situ Hysteresis Loops During Vehicle Motion
 

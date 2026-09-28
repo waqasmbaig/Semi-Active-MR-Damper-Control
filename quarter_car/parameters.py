@@ -68,6 +68,7 @@ class QuarterCarParameters:
     m_u: float = 40.0          # Unsprung mass (wheel, hub, tire, brake assembly) [kg]
     k_s: float = 22000.0       # Suspension primary coil spring stiffness [N/m]
     c_s_passive: float = 0.0   # Parallel passive viscous damping (0 when purely MRD) [N*s/m]
+    c_s_linear: float = 1500.0 # Standard basic linear passive shock absorber damping [N*s/m]
     k_t: float = 190000.0      # Tire radial vertical stiffness [N/m]
     c_t: float = 0.0           # Tire vertical damping coefficient [N*s/m]
     g: float = 9.80665         # Gravitational acceleration [m/s^2]
@@ -81,6 +82,16 @@ class QuarterCarParameters:
     def unsprung_natural_frequency_hz(self) -> float:
         """Undamped natural frequency of the unsprung mass (wheel hop mode) in Hz."""
         return (1.0 / (2.0 * np.pi)) * np.sqrt((self.k_t + self.k_s) / self.m_u)
+
+    @property
+    def critical_damping(self) -> float:
+        """Critical damping coefficient of the sprung mass bounce mode [N*s/m]."""
+        return 2.0 * np.sqrt(self.m_s * self.k_s)
+
+    @property
+    def linear_damping_ratio(self) -> float:
+        """Damping ratio zeta of the basic linear passive damper [-]."""
+        return self.c_s_linear / self.critical_damping
 
     @property
     def static_suspension_deflection(self) -> float:

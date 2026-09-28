@@ -65,7 +65,9 @@ class QuarterCarModel:
         state: np.ndarray,
         z_r: float,
         z_r_dot: float,
-        v_cmd: float
+        v_cmd: float,
+        use_linear_damper: bool = False,
+        c_s_linear: Optional[float] = None
     ) -> Tuple[np.ndarray, Dict[str, float]]:
         """
         Evaluate closed-loop state derivatives and auxiliary mechanical variables.
@@ -76,6 +78,8 @@ class QuarterCarModel:
             z_r: Road elevation [m]
             z_r_dot: Road vertical velocity [m/s]
             v_cmd: Commanded MR damper control voltage [V]
+            use_linear_damper: If True, evaluates standard linear shock absorber (c_s * x_dot)
+            c_s_linear: Optional linear damping coefficient [N*s/m] (defaults to params.c_s_linear)
 
         Returns:
             derivs: np.ndarray of shape (7,) representing d(state)/dt
@@ -92,11 +96,17 @@ class QuarterCarModel:
         tire_deflection = z_u - z_r
         tire_velocity = z_u_dot - z_r_dot
 
-        # MR Damper derivatives and instantaneous force
-        damper_state = np.array([y_d, z_d, u_d], dtype=np.float64)
-        mr_derivs, f_mr = self.damper.compute_derivatives(
-            t, damper_state, susp_deflection, susp_velocity, v_cmd
-        )
+        if use_linear_damper:
+            # Basic linear passive shock absorber: F_d = c_s * x_dot
+            c_val = c_s_linear if c_s_linear is not None else vp.c_s_linear
+            f_mr = c_val * susp_velocity
+            mr_derivs = np.zeros(3, dtype=np.float64)
+        else:
+            # Spencer Modified Bouc-Wen MR Damper derivatives and instantaneous force
+            damper_state = np.array([y_d, z_d, u_d], dtype=np.float64)
+            mr_derivs, f_mr = self.damper.compute_derivatives(
+                t, damper_state, susp_deflection, susp_velocity, v_cmd
+            )
 
         # Mechanical Forces
         f_spring = vp.k_s * susp_deflection + vp.c_s_passive * susp_velocity
