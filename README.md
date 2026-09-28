@@ -1,7 +1,7 @@
 <p align="center">
-  <h1 align="center">🏎️ Quarter-Car Semi-Active Suspension Simulation</h1>
-  <p align="center"><b>Coupled 2-DOF Vehicle Handling Dynamics & Spencer Modified Bouc-Wen MR Damper</b></p>
-  <p align="center"><i>High-Fidelity Dual-Platform Simulation Framework in MATLAB / Simulink & Pure Python 3</i></p>
+  <h1 align="center">🏎️ Semi-Active-MR-Damper-Control</h1>
+  <p align="center"><b>Coupled 2-DOF Quarter-Car Vehicle Handling Dynamics & Spencer Modified Bouc-Wen MR Damper</b></p>
+  <p align="center"><i>High-Fidelity Dual-Platform Simulation & Semi-Active Control Framework in MATLAB / Simulink & Pure Python 3</i></p>
 </p>
 
 <p align="center">
@@ -10,6 +10,7 @@
   <a href="https://www.mathworks.com/products/simulink.html"><img src="https://img.shields.io/badge/Simulink-Quarter_Car_MRD.slx-0076a8.svg?style=for-the-badge&logo=mathworks" alt="Simulink"/></a>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.9%2B-3776ab.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python"/></a>
   <a href="https://doi.org/10.1109/TTE.2025.3535765"><img src="https://img.shields.io/badge/IEEE%20TTE-10.1109%2FTTE.2025.3535765-orange.svg?style=for-the-badge" alt="IEEE DOI"/></a>
+  <a href="https://github.com/waqasmbaig/Semi-Active-MR-Damper-Control"><img src="https://img.shields.io/badge/Topics-Quarter_Car_|_Semi--Active_Control_|_MR_Damper-blueviolet.svg?style=for-the-badge" alt="GitHub Topics"/></a>
 </p>
 
 <p align="center">
@@ -28,9 +29,13 @@
 
 > [!TIP]
 > **🔗 MR Damper Companion Ecosystem**:
+> - **[Semi-Active-MR-Damper-Control](https://github.com/waqasmbaig/Semi-Active-MR-Damper-Control)**: 2-DOF Quarter-Car vehicle dynamics benchmark, Skyhook / Groundhook / Hybrid semi-active control, and Basic Linear Passive Damper comparison in Python & Simulink.
 > - **[MRD-Modified-Bouc-Wen-Model](https://github.com/waqasmbaig/MRD-Modified-Bouc-Wen-Model)**: Core experimental MR damper phenomenological model & dyno hysteresis characterization.
 > - **[Modified-Bouc-Wen-Model-Simulation](https://github.com/waqasmbaig/Modified-Bouc-Wen-Model-Simulation)**: Interactive in-browser web application hosted on Google AI Studio.
 > - **[MR-Damper-Lab](https://github.com/waqasmbaig/MR-Damper-Lab)**: Digital twin lab tutorials and telemetry analysis toolkit.
+
+> [!NOTE]
+> **🏷️ Repository Tags & Topics**: `Quarter car`, `quarter-car`, `quarter-car-model`, `semi-active-control`, `semi-active-mr-damper-control`, `mr-damper`, `magnetorheological-damper`, `skyhook-control`, `groundhook-control`, `bouc-wen-model`, `vehicle-dynamics`, `vibration-control`, `simulink`, `matlab`, `python`.
 
 ---
 
@@ -251,8 +256,8 @@ quarter_car/
 
 ### 1. Installation
 ```bash
-git clone https://github.com/waqasmbaig/Quarter-Car-MR-Damper-Simulation.git
-cd Quarter-Car-MR-Damper-Simulation
+git clone https://github.com/waqasmbaig/Semi-Active-MR-Damper-Control.git
+cd Semi-Active-MR-Damper-Control
 pip install -r requirements.txt
 ```
 

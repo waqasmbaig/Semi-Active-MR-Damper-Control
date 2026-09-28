@@ -1,18 +1,23 @@
 cff-version: 1.2.0
 message: "If you use this quarter-car simulation framework, MR damper model, or code in your research, please cite the following publications."
-title: "Quarter-Car Semi-Active Suspension Simulation with Spencer Modified Bouc-Wen MR Damper"
+title: "Semi-Active-MR-Damper-Control: Quarter-Car Semi-Active Suspension Simulation with Spencer Modified Bouc-Wen MR Damper"
 authors:
   - family-names: "Baig"
     given-names: "W. M."
 date-released: 2025-01-01
 license: "MIT"
-repository-code: "https://github.com/waqasmbaig/Quarter-Car-MR-Damper-Simulation"
+repository-code: "https://github.com/waqasmbaig/Semi-Active-MR-Damper-Control"
 keywords:
+  - "Quarter car"
+  - "quarter car"
   - "quarter-car model"
+  - "semi-active control"
+  - "semi-active-mr-damper-control"
   - "magnetorheological damper"
   - "modified bouc-wen model"
   - "semi-active suspension"
   - "skyhook control"
+  - "groundhook control"
   - "vibration control"
   - "simulink"
   - "matlab"

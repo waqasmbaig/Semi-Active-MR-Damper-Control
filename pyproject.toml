@@ -3,13 +3,29 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quarter-car-mr-damper"
+name = "semi-active-mr-damper-control"
 version = "1.0.0"
-description = "Coupled 2-DOF Quarter-Car Vehicle Handling Dynamics with Spencer Modified Bouc-Wen MR Damper"
+description = "Coupled 2-DOF Quarter-Car Vehicle Handling Dynamics with Semi-Active Spencer Modified Bouc-Wen MR Damper Control"
 readme = "README.md"
 authors = [{ name = "W. M. Baig" }]
 license = { text = "MIT" }
 requires-python = ">=3.9"
+keywords = [
+    "quarter car",
+    "quarter-car",
+    "quarter-car model",
+    "semi-active control",
+    "mr damper",
+    "magnetorheological damper",
+    "bouc-wen",
+    "skyhook control",
+    "groundhook control",
+    "vehicle dynamics",
+    "vibration control",
+    "simulink",
+    "matlab",
+    "python"
+]
 dependencies = [
     "numpy>=1.22.0",
     "scipy>=1.9.0",
