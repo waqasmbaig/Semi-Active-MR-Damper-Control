@@ -72,19 +72,23 @@
 
 ## 📐 Mechanical Architecture
 
-The complete system couples the 2-Degree-of-Freedom vehicle chassis corner with the internal kinematics of the Spencer Modified Bouc-Wen MR damper:
+The 2-Degree-of-Freedom quarter-car suspension system is formulated for both conventional passive and controllable semi-active configurations:
 
 <p align="center">
-  <img src="docs/assets/quarter_car_schematic.png" alt="2-DOF Quarter-Car with MR Damper Mechanical Schematic" width="65%" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+  <img src="docs/assets/Pass_GER_1.jpg" alt="Quarter-Car Model Architectures: (a) Passive vs (b) Semi-active" width="85%" style="border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.18);" />
 </p>
+<p align="center"><b>Figure 1</b>: <i>Schematic diagram of 2-DOF quarter-car suspension system: <b>(a) Passive</b> with standard viscous damper $c_s$, and <b>(b) Semi-active</b> with controllable damping force $F_d$.</i></p>
 
-### Mechanical Components:
-- **Sprung Mass ($m_s = 320\text{ kg}$)**: Represents quarter vehicle chassis body mass (bounce mode natural frequency $f_{n,s} \approx 1.32\text{ Hz}$).
-- **Unsprung Mass ($m_u = 40\text{ kg}$)**: Wheel hub, brake assembly, and tire mass (wheel-hop mode natural frequency $f_{n,u} \approx 11.6\text{ Hz}$).
-- **Suspension Spring ($k_s = 22\text{ kN/m}$)**: Primary coil spring carrying static vehicle weight.
-- **MR Damper ($F_{MR}$)**: Controllable magnetorheological dashpot delivering force $F_{MR}(x, \dot{x}, V)$.
-- **Tire Radial Compliance ($k_t = 190\text{ kN/m}$)**: Pneumatic tire vertical radial stiffness.
-- **Road Elevation ($z_r$)**: Ground vertical surface profile.
+### Mechanical Parameters & Variables:
+- **$m_s$**: Sprung mass representing vehicle chassis quarter body ($320.0\text{ kg}$, body bounce mode $f_{n,s} \approx 1.32\text{ Hz}$).
+- **$m_u$**: Unsprung mass representing wheel hub, brake, and tire assembly ($40.0\text{ kg}$, wheel-hop mode $f_{n,u} \approx 11.6\text{ Hz}$).
+- **$k_s$**: Suspension primary coil spring stiffness ($22,000.0\text{ N/m}$).
+- **$c_s$**: Conventional linear passive damper damping coefficient ($1500.0\text{ N}\cdot\text{s/m}$, damping ratio $\zeta \approx 0.283$) in **(a) Passive**.
+- **$F_d$**: Controllable semi-active damping force ($F_d = F_{MR}$) in **(b) Semi-active**.
+- **$k_t$**: Tire vertical radial stiffness ($190,000.0\text{ N/m}$).
+- **$z_s$**: Sprung mass vertical displacement coordinate ($z$ positive upward, ISO 8855).
+- **$z_u$**: Unsprung mass vertical displacement coordinate ($z$ positive upward, ISO 8855).
+- **$z_r$**: Road surface profile vertical elevation input.
 
 ---
 
@@ -92,25 +96,51 @@ The complete system couples the 2-Degree-of-Freedom vehicle chassis corner with 
 
 All equations adhere strictly to **SI Base Units** ($\text{m}, \text{s}, \text{kg}, \text{N}, \text{V}, \text{rad}$) and **ISO 8855 coordinate conventions** (vertical axis $z$ positive upward):
 
-### 1. Vehicle Corner Equations of Motion (2-DOF)
-Applying Newton's second law to the sprung and unsprung masses:
+### 1. (a) Passive Quarter-Car System Dynamics
+In the passive system shown in **Figure 1(a)**, the suspension forces transmitted between the chassis and wheel comprise the linear spring force $k_s (z_s - z_u)$ and the linear viscous damping force $c_s (\dot{z}_s - \dot{z}_u)$.
+
+Applying Newton's second law:
 
 $$\begin{aligned}
-m_s \ddot{z}_s &= -k_s (z_s - z_u) - F_{MR} \\
-m_u \ddot{z}_u &= k_s (z_s - z_u) + F_{MR} - k_t (z_u - z_r)
+m_s \ddot{z}_s + c_s (\dot{z}_s - \dot{z}_u) + k_s (z_s - z_u) &= 0 \\
+m_u \ddot{z}_u - c_s (\dot{z}_s - \dot{z}_u) - k_s (z_s - z_u) + k_t (z_u - z_r) &= 0
+\end{aligned}$$
+
+Expressed explicitly in second-order state form for numerical integration:
+
+$$\begin{aligned}
+\ddot{z}_s &= \frac{-k_s (z_s - z_u) - c_s (\dot{z}_s - \dot{z}_u)}{m_s} \\
+\ddot{z}_u &= \frac{k_s (z_s - z_u) + c_s (\dot{z}_s - \dot{z}_u) - k_t (z_u - z_r)}{m_u}
+\end{aligned}$$
+
+### 2. (b) Semi-Active Quarter-Car System Dynamics
+In the semi-active system shown in **Figure 1(b)**, the passive damper is replaced by a controllable magnetorheological (MR) damper delivering a variable damping force $F_d$.
+
+Applying Newton's second law:
+
+$$\begin{aligned}
+m_s \ddot{z}_s + k_s (z_s - z_u) + F_d &= 0 \\
+m_u \ddot{z}_u - k_s (z_s - z_u) - F_d + k_t (z_u - z_r) &= 0
+\end{aligned}$$
+
+Expressed explicitly in acceleration form:
+
+$$\begin{aligned}
+\ddot{z}_s &= \frac{-k_s (z_s - z_u) - F_d}{m_s} \\
+\ddot{z}_u &= \frac{k_s (z_s - z_u) + F_d - k_t (z_u - z_r)}{m_u}
 \end{aligned}$$
 
 Defining relative suspension stroke $x = z_s - z_u$ (extension positive) and dynamic tire deflection $x_t = z_u - z_r$:
 
 $$\begin{aligned}
-\ddot{z}_s &= \frac{-k_s x - F_{MR}}{m_s} \\
-\ddot{z}_u &= \frac{k_s x + F_{MR} - k_t x_t}{m_u}
+\ddot{z}_s &= \frac{-k_s x - F_d}{m_s} \\
+\ddot{z}_u &= \frac{k_s x + F_d - k_t x_t}{m_u}
 \end{aligned}$$
 
-### 2. Spencer Modified Bouc-Wen MR Damper Dynamics
-The MR damper output force $F_{MR}$ transmitted to the chassis is:
+### 3. Controllable MR Damper Force Formulation ($F_d$)
+Under Spencer's Modified Bouc-Wen phenomenological model, the controllable damping force $F_d = F_{MR}$ is governed by internal accumulator compliance and intermediate displacement $y$:
 
-$$F_{MR} = c_1 \dot{y} + k_1 (x - x_0)$$
+$$F_d = c_1 \dot{y} + k_1 (x - x_0)$$
 
 Equilibrium across internal float plate $y$ yields the intermediate node velocity:
 
@@ -124,18 +154,9 @@ The coil electromagnetic lag filter governs effective voltage $u$:
 
 $$\dot{u} = -\eta (u - V_{cmd})$$
 
-with voltage-dependent parameters:
+with field-dependent parameters linearly scaling with effective voltage $u$:
 
 $$\alpha(u) = \alpha_a + \alpha_b u, \qquad c_0(u) = c_{0a} + c_{0b} u, \qquad c_1(u) = c_{1a} + c_{1b} u$$
-
-### 3. Basic Linear Passive Shock Absorber ($F_{pass}$)
-For conventional passenger vehicle suspensions without magnetorheological fluid, the damping force follows a standard linear viscous law:
-
-$$F_{pass} = c_s (\dot{z}_s - \dot{z}_u) = c_s \dot{x}$$
-
-with nominal linear damping coefficient $c_s = 1500.0\text{ N}\cdot\text{s/m}$, corresponding to a typical passenger car damping ratio of:
-
-$$\zeta = \frac{c_s}{2\sqrt{m_s k_s}} = \frac{1500.0}{2\sqrt{320 \times 22000}} \approx 0.283$$
 
 ### 4. Semi-Active Skyhook Control Laws
 

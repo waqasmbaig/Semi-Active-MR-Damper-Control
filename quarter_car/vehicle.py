@@ -4,13 +4,21 @@ Two-Degree-of-Freedom (2-DOF) Quarter-Car Vehicle Suspension Model.
 Author:
     W. M. Baig
 
-Coordinate System:
-    Adheres strictly to ISO 8855 conventions:
-    - Vertical axis z is positive upwards.
-    - z_r: Road excitation surface height [m]
+Coordinate System & Formulations:
+    Adheres strictly to ISO 8855 conventions (vertical axis z positive upwards):
+    - z_r: Road excitation surface vertical profile [m]
     - z_u: Unsprung mass displacement [m]
     - z_s: Sprung mass displacement [m]
     - x = z_s - z_u: Suspension deflection [m] (extension positive)
+
+    (a) Passive Quarter-Car System:
+        m_s * z_s_ddot + c_s * (z_s_dot - z_u_dot) + k_s * (z_s - z_u) = 0
+        m_u * z_u_ddot - c_s * (z_s_dot - z_u_dot) - k_s * (z_s - z_u) + k_t * (z_u - z_r) = 0
+
+    (b) Semi-Active Quarter-Car System:
+        m_s * z_s_ddot + k_s * (z_s - z_u) + F_d = 0
+        m_u * z_u_ddot - k_s * (z_s - z_u) - F_d + k_t * (z_u - z_r) = 0
+        where F_d is the controllable damping force delivered by the MR damper (Spencer MBW).
 
 Citation Request:
     If you use this model or code in your research, please cite:

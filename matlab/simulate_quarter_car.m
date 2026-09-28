@@ -1,6 +1,14 @@
 %% Standalone Pure MATLAB Simulation of Quarter-Car with MR Damper
-% Runs without requiring Simulink. Solves the 7-state stiff nonlinear system
-% using MATLAB's ode15s or ode23t.
+% Runs without requiring Simulink. Solves the stiff nonlinear system using ode15s.
+%
+% Architectures Modeled:
+%   (a) Passive Quarter-Car:
+%       m_s * d2(z_s)/dt^2 + c_s * (d(z_s)/dt - d(z_u)/dt) + k_s * (z_s - z_u) = 0
+%       m_u * d2(z_u)/dt^2 - c_s * (d(z_s)/dt - d(z_u)/dt) - k_s * (z_s - z_u) + k_t * (z_u - z_r) = 0
+%   (b) Semi-Active Quarter-Car:
+%       m_s * d2(z_s)/dt^2 + k_s * (z_s - z_u) + F_d = 0
+%       m_u * d2(z_u)/dt^2 - k_s * (z_s - z_u) - F_d + k_t * (z_u - z_r) = 0
+%       where F_d is the controllable damping force (Spencer Modified Bouc-Wen MR damper).
 %
 % Author: W. M. Baig
 %
